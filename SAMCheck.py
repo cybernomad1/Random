@@ -19,7 +19,7 @@ hashes_file = open(args.crackedhashes[0])
 for hsh in hashes_file:
     hashes = hsh.split(':')
     hash_user = hashes[0].split('\\')
-    for sam in search_sam:
-        if sam == hash_user[1]:
-            print(hsh)
-            
+    if len(hash_user) > 1:
+        for sam in search_sam:
+                if sam == hash_user[1]:
+                    print(hsh.rstrip('\n'))
