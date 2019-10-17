@@ -17,8 +17,13 @@ import numpy as np
 csvHeaders = ['CCS_REF','CVSS Score','Risk', 'Host', 'OS', 'Port', 'Vulnerability', 'Synopsis', 'Proof', 'Solution', 'See Also', 'CVE']
 nessusFields = ['CCS_REF','cvss_base_score','risk_factor','host-fqdn', 'operating-system', 'port', 'plugin_name', 'Synopsis', 'plugin_output', 'solution', 'see_also', 'cve']
 count = 1
-issues = {}
+IssueList = []
 
+class Issue:
+        def __init__(self, Title, CVSSscore):
+            self.title = str(Title)
+            self.cvssScore = float(CVSSscore)
+            self.ccs_ref = ""
 
 def NessusMerge(directory):
     first = 1
@@ -51,20 +56,43 @@ def NessusMerge(directory):
 
     os.mkdir("CCS_REF_temp")
     mainTree.write("CCS_REF_temp/Merged_nessus.nessus", encoding="utf-8", xml_declaration=True)
+def setref(projectID):
+    count = 1
+    for issue in IssueList:
+        issue.ccs_ref = projectID + "-CCS-" + str(count)
+        count = count + 1
+def writexml(projectID):
+    scanfile2 = ET.parse("CCS_REF_temp/Merged_nessus.nessus")
+    xmlRoot = scanfile2.getroot()
+    for report2 in xmlRoot.findall('./Report/ReportHost'):
+        amendreport(report2)
+    print(":: => done")
+    print(":: Writing nessus file: " + projectID[0] + "_nessusScan.nessus")
+    scanfile2.write(projectID[0] + "_nessusScan.nessus")
 
 def addref(projectID):
    
     print(":: Adding CCS Ref")
-    #scanfile = ET.parse("CCS_REF_temp/Merged_nessus.nessus")
-    scanfile = ET.parse("report.nessus")
+    scanfile = ET.parse("CCS_REF_temp/Merged_nessus.nessus")
+    #scanfile = ET.parse("report.nessus")
     xmlRoot = scanfile.getroot()
     for report in xmlRoot.findall('./Report/ReportHost'):
-        handleReport(report,projectID)
+        ParseReport(report,projectID)
+    orderlist()
+    setref(projectID[0])
+    writexml(projectID)
+    print(":: => done")
+
+def amendreport(report):
+    Vuln = ""
     
-    print(":: => done")
-    print(":: Writing nessus file: " + projectID[0] + "_nessusScan.nessus")
-    scanfile.write(projectID[0] + "_nessusScan.nessus")
-    print(":: => done")
+    for item in report:
+        if item.tag == 'ReportItem':
+            Vuln = item.attrib['pluginName']
+            for tag in (tag for tag in item):
+                if tag.tag == 'cvss_base_score':	
+                    item1 = ET.SubElement(item, 'CCS_REF')
+                    item1.text=getref(Vuln)
 
 def CreateStatsExcel(CSV,projectID):
     print(":: Generating Stats")
@@ -155,17 +183,20 @@ def CreateStatsExcel(CSV,projectID):
                 sheet_name='UniqueVulns')
     print(":: => done")
 
-def checkdict(issue,projectID):
-    global count
-    global issues
-    if issue in issues.keys():
-        return issues[issue]
-    else:
-        issues[issue] = projectID + "-CCS-" + str(count)
-        count = count + 1
-        return issues[issue]
-    #is value in dict if yes return key
-    #if not add issue to dict with count, increment count and return key
+def addissue(title,cvssScore):
+    flag = False
+    global IssueList
+    for issue in IssueList:
+        if title == issue.title:
+            flag = True
+    if flag == False:
+        IssueList.append(Issue(title,cvssScore))
+
+def getref(title):
+    for issue in IssueList:
+        if issue.title == title:
+            return issue.ccs_ref
+
 
 def createCSV(projectID,reportRows):
     with open(projectID[0] + '_PSNITHC.csv', 'w') as csvFile:
@@ -174,18 +205,21 @@ def createCSV(projectID,reportRows):
         writer.writerows(reportRows)
 
     csvFile.close()    
-    
 
-def handleReport(report,projectID):
+def ParseReport(report,projectID):
     Vuln = ""
+    cvssScore=0
     for item in report:
         if item.tag == 'ReportItem':
             Vuln = item.attrib['pluginName']
             for tag in (tag for tag in item):
                 if tag.tag == 'cvss_base_score':	
-                    item1 = ET.SubElement(item, 'CCS_REF')
-                    item1.text=checkdict(Vuln,projectID[0])
-                      
+                    cvssScore = float(tag.text)
+                    addissue(Vuln,cvssScore)
+
+
+def orderlist():
+    IssueList.sort(key=lambda x: x.cvssScore, reverse=True)                
 
 # Clean values from nessus report
 def getValue(rawValue):
