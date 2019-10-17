@@ -40,11 +40,11 @@ optional arguments:
                         in xml format.
  ```
  ---
- ## PTRNessusPares.py
+ ## PTRNessusParser.py
 
 ```
 usage:
-python3 CCS_REF.py -d NessusFileDirectory -p ProjectID
+python3 PTRNessusParser.py -d NessusFileDirectory -p ProjectID
 
 
 optional arguments:
