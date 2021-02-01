@@ -8,6 +8,7 @@ Random scripts that fit particular usecases/make life easier. Scripts work for m
 |PTRNessusParser.py|Add unique ref to nessus, generate PSN ITHC csv, Generate stats xlsx|
 |SAMCheck.py| Cross reference account names against ntds.dit cracked passwords|
 |CE_CVSS_Converter.py| Calculate CE+ aligned CVSSv3 score and amend nessus file, also prints out Fail and Action points|
+|NessusParser.nim| Nim script to parse nessus file for open ports and create CSV|
 
 
 ---
@@ -84,9 +85,21 @@ python3 CE_CVSS_Converter.py input.nessus
 
 CEPLUS Nessus Interpreter.
 
+
 positional arguments:
   nessus_xml_files  nessus xml file to parse
 
 optional arguments:
   -h, --help        show this help message and exit
   ```
+
+## NessusParser.nim
+
+```
+compile:
+nim c NessusParser.nim
+
+usage:
+./NessusParser NessusReportFile
+
+outputs NessusSynScan_Results.csv in same directory
