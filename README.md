@@ -9,6 +9,7 @@ Random scripts that fit particular usecases/make life easier. Scripts work for m
 |SAMCheck.py| Cross reference account names against ntds.dit cracked passwords|
 |CE_CVSS_Converter.py| Calculate CE+ aligned CVSSv3 score and amend nessus file, also prints out Fail and Action points|
 |NessusParser.nim| Nim script to parse nessus file for open ports and create CSV|
+|log4shell.py|Python script to check for log4shell vuln|
 
 
 ---
@@ -103,3 +104,12 @@ usage:
 ./NessusParser NessusReportFile
 
 outputs NessusSynScan_Results.csv in same directory
+
+
+## log4shell.py
+
+```
+compile:
+usage:
+python3 log4shell.py -u url -c burpCollaborator
+python3 log4shell.py -U urlList -c burpCollaborator
